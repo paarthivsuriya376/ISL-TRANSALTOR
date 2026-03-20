@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISL Communicator Pro | Sign Language Translator</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript" src="/eel.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body x-init="init()" x-data="app()">
+    <!-- Auth Screen -->
+    <div class="auth-overlay" x-show="!isLoggedIn" x-transition:enter.duration.500ms>
+        <div class="auth-card glass card">
+            <div class="auth-header">
+                <span class="auth-logo">🤟</span>
+                <h1 x-text="authMode === 'login' ? 'Welcome Back' : 'Create Account'"></h1>
+                <p x-text="authMode === 'login' ? 'Sign in to continue to ISL Pro' : 'Join the ISL Pro community'"></p>
+            </div>
+
+            <div class="auth-form">
+                <div class="input-group">
+                    <i data-lucide="user"></i>
+                    <input type="text" x-model="loginUser" placeholder="Username" @keyup.enter="performAuth">
+                </div>
+                <div class="input-group">
+                    <i data-lucide="lock"></i>
+                    <input type="password" x-model="loginPass" placeholder="Password" @keyup.enter="performAuth">
+                </div>
+
+                <p class="auth-msg" x-show="authMessage" x-text="authMessage"
+                    :class="authMessage.includes('success') ? 'success' : 'error'"></p>
+
+                <button class="main-btn auth-btn" @click="performAuth">
+                    <span x-text="authMode === 'login' ? 'Sign In' : 'Sign Up'"></span>
+                    <i data-lucide="arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="auth-footer">
+                <p x-text="authMode === 'login' ? 'Don\'t have an account?' : 'Already have an account?'"></p>
+                <button @click="toggleAuthMode" x-text="authMode === 'login' ? 'Create Account' : 'Sign In'"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-container" x-show="isLoggedIn" x-transition:enter.delay.300ms>
+        <!-- Sidebar -->
+        <aside class="sidebar glass">
+            <div class="logo">
+                <span class="icon">🤟</span>
+                <h1>ISL<span>Pro</span></h1>
+            </div>
+
+            <nav>
+                <button :class="{active: tab === 'sign'}" @click="setTab('sign')">
+                    <i data-lucide="camera"></i>
+                    Sign &rarr; Text
+                </button>
+                <button :class="{active: tab === 'speech'}" @click="setTab('speech')">
+                    <i data-lucide="mic"></i>
+                    Speech &rarr; Sign
+                </button>
+                <button :class="{active: tab === 'history'}" @click="setTab('history')">
+                    <i data-lucide="history"></i>
+                    History
+                </button>
+            </nav>
+
+            <div class="user-info card glass">
+                <div class="avatar" x-text="username ? username[0].toUpperCase() : '?'"></div>
+                <div class="details">
+                    <p class="name" x-text="username"></p>
+                    <p class="status">Online</p>
+                </div>
+                <button @click="logout" title="Log out"><i data-lucide="log-out"></i></button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main>
+            <header>
+                <h2 x-text="tabTitle"></h2>
+                <button class="guide-btn glass" @click="showGuide = true">
+                    <i data-lucide="book-open"></i> How to Gesture
+                </button>
+            </header>
+
+            <section class="content">
+                <!-- Sign to Speed Tab -->
+                <div class="tab-view" x-show="tab === 'sign'">
+                    <div class="camera-container glass card">
+                        <img id="camera-feed" src="assets/camera-bg.png" alt="Camera Feed">
+                        <div class="overlay" x-show="isCapturing">
+                            <span class="sign-pill" x-text="currentSign"></span>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" :style="'width: ' + signProgress + '%'"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="controls-row">
+                        <div class="transcript-box card glass">
+                            <label>Accumulated Sentence</label>
+                            <div class="text-area" x-text="sentence || 'Your message will appear here...'"></div>
+                        </div>
+                        <div class="actions">
+                            <button class="main-btn" @click="toggleCamera">
+                                <i :data-lucide="isCapturing ? 'video-off' : 'video'"></i>
+                                <span x-text="isCapturing ? 'Stop Tracking' : 'Start Tracking'"></span>
+                            </button>
+                            <div class="sub-actions">
+                                <button class="secondary-btn blur" @click="backspace"><i
+                                        data-lucide="delete"></i></button>
+                                <button class="accent-btn" @click="speakAndClear"><i data-lucide="volume-2"></i>
+                                    Speak</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Speech to Sign Tab -->
+                <div class="tab-view" x-show="tab === 'speech'">
+                    <div class="visualizer glass card">
+                        <div class="animation-stage">
+                            <!-- Show placeholder if no animation is active -->
+                            <img id="sign-animation" src="assets/sign-placeholder.png" alt="Sign Language">
+                        </div>
+                        <div class="sub-label" x-text="signLabel || 'Ready'"></div>
+                    </div>
+
+                    <div class="microphone-container card glass">
+                        <div class="mic-controls">
+                            <button class="mic-btn" :class="{pulse: isListening}" @click="startListening">
+                                <i data-lucide="mic"></i>
+                                <div class="pulse-ring"></div>
+                            </button>
+                            <div class="mic-status">
+                                <p x-text="isListening ? 'Listening...' : 'Ready to translate'"></p>
+                                <span class="recognized-text" x-text="recognizedText"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History Tab -->
+                <div class="tab-view" x-show="tab === 'history'">
+                    <div class="history-header">
+                        <button class="clear-btn glass" @click="clearHistory">
+                            <i data-lucide="trash-2"></i> Clear All History
+                        </button>
+                    </div>
+                    <div class="history-container card glass scrollable">
+                        <template x-for="item in historyRecords" :key="item.id">
+                            <div class="history-item glass">
+                                <i :data-lucide="item.type === 'sign' ? 'camera' : 'mic'" class="type-icon"></i>
+                                <div class="history-content">
+                                    <p class="history-text" x-text="item.text"></p>
+                                    <span class="history-time" x-text="item.time"></span>
+                                </div>
+                            </div>
+                        </template>
+                        <div x-show="!historyRecords.length" class="empty-state">
+                            <i data-lucide="inbox"></i>
+                            <p>No history records found yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Modal Backdrop for Guide -->
+        <div class="modal-backdrop" x-show="showGuide" @click="showGuide = false" x-transition>
+            <div class="guide-modal card glass" @click.stop>
+                <div class="modal-header">
+                    <h3>🤟 Indian Sign Language Guide</h3>
+                    <button @click="showGuide = false">&times;</button>
+                </div>
+                <div class="guide-grid scrollable">
+                    <template x-for="g in gestures" :key="g.sign">
+                        <div class="gesture-item card glass">
+                            <span class="emoji" x-text="g.sign"></span>
+                            <div class="gesture-details">
+                                <strong x-text="g.label"></strong>
+                                <p x-text="g.meaning"></p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
