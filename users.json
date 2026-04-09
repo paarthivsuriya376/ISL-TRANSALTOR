@@ -84,7 +84,14 @@
       "[Speech\u2192Sign] I am fine image",
       "[Sign\u2192Speech] GOOD \ud83d\udc4dLGOOD \ud83d\udc4dHELP / B \ud83e\udd1aGOODBYE \ud83d\udc4bGOODBYE \ud83d\udc4bGOODBYE \ud83d\udc4b",
       "[Speech\u2192Sign] hello",
-      "[Speech\u2192Sign] sorry sorry"
+      "[Speech\u2192Sign] sorry sorry",
+      "[Sign\u2192Speech] I LOVE YOU \ud83e\udd1f",
+      "[Speech\u2192Sign] good morning",
+      "[Sign\u2192Speech] SPIDER-MAN \ud83d\udd77\ufe0f",
+      "[Sign\u2192Speech] SPIDER-MAN \ud83d\udd77\ufe0f",
+      "[Speech\u2192Sign] hello",
+      "[Speech\u2192Sign] I am fine",
+      "[Speech\u2192Sign] hi how are you"
     ]
   },
   "user": {
