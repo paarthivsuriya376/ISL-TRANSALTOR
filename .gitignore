@@ -113,8 +113,8 @@ celerybeat.pid
 .env
 .venv
 env/
-# venv/ is already tracked, but let's keep it ignored for future untracked environments.
-# venv/
+# Virtual environment
+venv/
 
 # Spyder project settings
 .spyderproject
