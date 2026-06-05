@@ -12,12 +12,6 @@
 </head>
 
 <body x-init="init()" x-data="app()">
-    <!-- Demo Mode Banner -->
-    <div x-show="isDemoMode" style="background: linear-gradient(135deg, #ff9e22, #ff5e3a); color: white; text-align: center; padding: 12px 20px; font-weight: 600; font-size: 14px; position: relative; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <span>⚠️</span>
-        <span><strong>Web Demo Mode:</strong> To use real-time camera & voice translation, please download this project and run <code>Run_App.bat</code> on your local PC!</span>
-    </div>
-
     <!-- Auth Screen -->
     <div class="auth-overlay" x-show="!isLoggedIn" x-transition:enter.duration.500ms>
         <div class="auth-card glass card">
