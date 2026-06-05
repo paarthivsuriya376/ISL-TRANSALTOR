@@ -83,3 +83,18 @@ def clear_history(username: str):
         _save(db)
         return True
     return False
+
+
+def delete_history_item(username: str, item_id: int):
+    """Delete a single history entry for a user by index."""
+    if not username: username = "Guest"
+    db = _load()
+    key = username.lower()
+    if key in db:
+        history = db[key].get("history", [])
+        if 0 <= item_id < len(history):
+            history.pop(item_id)
+            db[key]["history"] = history
+            _save(db)
+            return True
+    return False

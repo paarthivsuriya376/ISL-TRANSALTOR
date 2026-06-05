@@ -222,9 +222,16 @@ def handle_clear_history():
 def get_translation_history():
     from utils.user_data import get_history
     data = get_history(username)
-    # Return as objects with an ID for unique keys in frontend
-    # Use index to ensure IDs stay unique in current session
-    return [{"id": i, "text": entry} for i, entry in enumerate(data[-20:][::-1])]
+    start_idx = max(0, len(data) - 20)
+    result = []
+    for i in range(len(data)-1, start_idx-1, -1):
+        result.append({"id": i, "text": data[i]})
+    return result
+
+@eel.expose
+def handle_delete_history_item(item_id):
+    from utils.user_data import delete_history_item
+    return delete_history_item(username, item_id)
 
 # Animation Logic
 animation_thread = None

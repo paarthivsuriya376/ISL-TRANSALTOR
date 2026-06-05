@@ -162,6 +162,9 @@
                                     <p class="history-text" x-text="item.text"></p>
                                     <span class="history-time" x-text="item.time"></span>
                                 </div>
+                                <button class="delete-btn" @click="deleteHistoryItem(item.id)" style="background: transparent; border: none; color: #ff6b6b; margin-left: auto; cursor: pointer;" title="Delete this entry">
+                                    <i data-lucide="trash-2"></i>
+                                </button>
                             </div>
                         </template>
                         <div x-show="!historyRecords.length" class="empty-state">

@@ -132,6 +132,14 @@ function app() {
             }
         },
 
+        async deleteHistoryItem(id) {
+            const success = await window.eel.handle_delete_history_item(id)();
+            if (success) {
+                await this.fetchHistory();
+                this.$nextTick(() => lucide.createIcons());
+            }
+        },
+
         async performAuth() {
             if (!this.loginUser || !this.loginPass) {
                 this.authMessage = "Please fulfill all fields.";
