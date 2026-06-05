@@ -12,6 +12,12 @@
 </head>
 
 <body x-init="init()" x-data="app()">
+    <!-- Demo Mode Banner -->
+    <div x-show="isDemoMode" style="background: linear-gradient(135deg, #ff9e22, #ff5e3a); color: white; text-align: center; padding: 12px 20px; font-weight: 600; font-size: 14px; position: relative; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <span>⚠️</span>
+        <span><strong>Web Demo Mode:</strong> To use real-time camera & voice translation, please download this project and run <code>Run_App.bat</code> on your local PC!</span>
+    </div>
+
     <!-- Auth Screen -->
     <div class="auth-overlay" x-show="!isLoggedIn" x-transition:enter.duration.500ms>
         <div class="auth-card glass card">
@@ -95,7 +101,17 @@
                 <div class="tab-view" x-show="tab === 'sign'">
                     <div class="camera-container glass card">
                         <img id="camera-feed" src="assets/camera-bg.png" alt="Camera Feed">
-                        <div class="overlay" x-show="isCapturing">
+                        
+                        <!-- Demo Mode Camera Alert -->
+                        <div x-show="isDemoMode && isCapturing" style="position: absolute; inset: 0; background: rgba(5, 5, 20, 0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; color: white; z-index: 10; border-radius: 12px;">
+                            <div style="background: rgba(255, 94, 58, 0.15); border: 1px solid #ff5e3a; border-radius: 50%; padding: 15px; margin-bottom: 12px; display: inline-flex; align-items: center; justify-content: center;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ff5e3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-video-off"><path d="M10.66 6H14a2 2 0 0 1 2 2v3.34"/><path d="M16 16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1.34"/><path d="m2 2 20 20"/><path d="m21 16-3.76-2.51a1 1 0 0 1-.24-1.37l.2-.3a1 1 0 0 1 1.4-.26L22 13v-2l-2.4-1.6a1 1 0 0 1-.4-1.16l.24-.76a1 1 0 0 1 1.25-.66L22 7.42"/></svg>
+                            </div>
+                            <h3 style="font-size: 18px; margin-bottom: 8px; font-weight: 600; color: #ff5e3a;">Camera Disabled in Web Demo</h3>
+                            <p style="font-size: 13px; opacity: 0.8; max-width: 320px; line-height: 1.5; margin: 0 auto;">AI gesture tracking requires Python to run locally on your system. Download the project and double-click <strong>Run_App.bat</strong> to run the full camera version!</p>
+                        </div>
+
+                        <div class="overlay" x-show="isCapturing && !isDemoMode">
                             <span class="sign-pill" x-text="currentSign"></span>
                             <div class="progress-bar-container">
                                 <div class="progress-bar" :style="'width: ' + signProgress + '%'"></div>

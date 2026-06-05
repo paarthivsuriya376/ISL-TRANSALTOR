@@ -1,5 +1,84 @@
+// Mock Eel implementation for static web demo mode (e.g., GitHub Pages)
+if (typeof window.eel === 'undefined') {
+    window.eel = {
+        is_mock: true,
+        expose: function(func, name) {
+            console.log("Mock exposing function:", name);
+            if (!window.eel_exposed) window.eel_exposed = {};
+            window.eel_exposed[name] = func;
+        },
+        toggle_camera: function(state) {
+            console.log("Mock toggle_camera:", state);
+            if (state) {
+                // If starting camera in demo mode, update with a mock feed/placeholder
+                setTimeout(() => {
+                    if (window.eel_exposed && window.eel_exposed.update_camera_frame) {
+                        // We will notify the user they need the local backend
+                    }
+                }, 500);
+            }
+            return function() { return Promise.resolve(true); };
+        },
+        login_user: function(user, pass) {
+            console.log("Mock login_user:", user);
+            return function() {
+                return Promise.resolve([true, "Login successful (Demo Mode)"]);
+            };
+        },
+        register_user: function(user, pass) {
+            console.log("Mock register_user:", user);
+            return function() {
+                return Promise.resolve([true, "Registration successful (Demo Mode)"]);
+            };
+        },
+        get_user_data: function() {
+            return function() {
+                return Promise.resolve({ username: "Demo User" });
+            };
+        },
+        handle_backspace: function() {
+            return function() { return Promise.resolve(); };
+        },
+        handle_speak_and_clear: function() {
+            return function() { return Promise.resolve(); };
+        },
+        handle_start_listening: function() {
+            return function() {
+                // Mock speech recognition result after 2 seconds
+                setTimeout(() => {
+                    if (window.eel_exposed && window.eel_exposed.update_speech_result) {
+                        window.eel_exposed.update_speech_result("HELLO FRIEND");
+                    }
+                    if (window.eel_exposed && window.eel_exposed.update_animation_stage) {
+                        // Use a blank or placeholder animation
+                        window.eel_exposed.update_animation_stage("", "HELLO");
+                    }
+                }, 2000);
+                return Promise.resolve();
+            };
+        },
+        handle_clear_history: function() {
+            return function() { return Promise.resolve(true); };
+        },
+        handle_delete_history_item: function(id) {
+            return function() { return Promise.resolve(true); };
+        },
+        get_translation_history: function() {
+            return function() {
+                return Promise.resolve([
+                    { id: 0, text: "[Sign→Speech] HELLO" },
+                    { id: 1, text: "[Speech→Sign] GOOD" },
+                    { id: 2, text: "[Sign→Speech] THANK YOU" }
+                ]);
+            };
+        }
+    };
+}
+
 function app() {
     return {
+        isDemoMode: false,
+
         tab: 'login', // Initial tab for auth
         tabTitle: 'Welcome to ISL Pro',
         isLoggedIn: false,
@@ -31,6 +110,7 @@ function app() {
         ],
 
         init() {
+            this.isDemoMode = !!window.eel.is_mock;
             lucide.createIcons();
 
             // Expose named functions to Eel (more reliable than anonymous closures)
